@@ -4,6 +4,10 @@ import fastparse._
 import fastparse.MultiLineWhitespace._
 
 object Parser {
+
+  def parse(input: String): Parsed[Expr] =
+    fastparse.parse(input, expr(_))
+
   def expr[_: P]: P[Expr] = P(prefixExpr ~ plus.rep).map {
     case (e, Nil)   => e
     case (e, items) => Expr.Plus(e +: items)

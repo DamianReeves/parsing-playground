@@ -19,7 +19,12 @@ class Evaluator {
       val assignedValue = evaluate(assigned, scope)
       evaluate(body, scope + (name -> assignedValue))
     case Expr.Ident(name) => scope(name)
-    case _                => ???
+    case Expr.Call(expr, args) =>
+      val Value.Func(call) = evaluate(expr, scope)
+      val evaluatedArgs = args.map(evaluate(_, scope))
+      call(evaluatedArgs)
+    case Expr.Func(argNames, body) =>
+      Value.Func(args => evaluate(body, scope ++ argNames.zip(args)))
   }
 }
 
