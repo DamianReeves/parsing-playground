@@ -62,7 +62,47 @@ object ParserSpec extends DefaultRunnableSpec with ParsingSpec {
               )
             )
           )
+        ),
+        test("A complex expression should work")(
+          assert(
+            fastparse.parse(
+              """local variable = "kay"; {"a": "A", "f": function(a) a + a, "nested": {"k": variable}}""",
+              Parser.expr(_)
+            )
+          )(
+            AssertThat.hasParsedSuccessValue(
+              equalTo(
+                Expr.Local(
+                  "variable",
+                  Expr.Str("kay"),
+                  Expr.Dict(
+                    Map(
+                      "a" -> Expr.Str("A"),
+                      "f" -> Expr.Func(
+                        List("a"),
+                        Expr.Plus(List(Expr.Ident("a"), Expr.Ident("a")))
+                      ),
+                      "nested" -> Expr.Dict(Map("k" -> Expr.Ident("variable")))
+                    )
+                  )
+                )
+              )
+            )
+          )
         )
+      ),
+      suite("dict")(
+        test("A dict should parse") {
+          assert(fastparse.parse("""{"a": "b", "cde": id}""", Parser.expr(_)))(
+            AssertThat.hasParsedSuccessValue(
+              equalTo(
+                Expr.Dict(
+                  Map("a" -> Expr.Str("b"), "cde" -> Expr.Ident("id"))
+                )
+              )
+            )
+          )
+        }
       )
     )
   )
